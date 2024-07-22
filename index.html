@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+<html lang="en" x-data="{ searchQuery: '', loading: false }">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolongDev Project</title>
+    <meta name="description" content="A web application to check Facebook tokens and manage profile guard settings. Secure your Facebook profile with ease.">
+    <meta property="og:title" content="PolongDev Project - This Tools allows you to check facebook tokens and manage profile guard settings. And getting your Access Token and Cookie and you can spam react on fb using the tools below.">
+    <meta property="og:description" content="A web application to check Facebook tokens and manage profile guard settings. Secure your Facebook profile with ease and access token and cookie.">
+    <meta property="og:image" content="https://files.catbox.moe/kaza9e.jpg">
+    <meta property="og:url" content="https://mainprofile-by-polongdev.vercel.app">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+            transition: background-color 0.5s, color 0.5s;
+            background-color: #1a202c;
+            color: white;
+        }
+
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+            opacity: 1;
+            transform: translateY(0);
+            border: 1px solid #4a5568;
+            background-color: #2d3748;
+            color: #f9f9f9;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #1a202c;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .status .dot {
+            height: 10px;
+            width: 10px;
+            background-color: #48bb78;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .status .down {
+            height: 10px;
+            width: 10px;
+            background-color: Red;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .text-yellow-500:hover {
+            color: #eab308;
+        }
+
+        .header-button:hover {
+            background-color: #eab308;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #2d3748;
+            transition: background-color 0.3s;
+        }
+
+        .header-shadow {
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-spacing {
+            margin-top: 80px;
+        }
+
+        .focus\:outline-none:focus {
+            outline: 2px solid #eab308;
+            outline-offset: 4px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bubble-button {
+            background: linear-gradient(135deg, #ffcc33, #ff66cc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .bubble-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 640px) {
+            .fixed-header {
+                padding: 10px;
+            }
+
+            .header-title {
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .header-spacing {
+                margin-top: 60px;
+            }
+
+            .card {
+                margin: 10px;
+            }
+        }
+
+        .animated-icon {
+            transition: transform 0.2s;
+        }
+
+        .animated-icon:hover {
+            transform: rotate(20deg);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+            background: #ffcc33;
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+
+        #backToTop:hover {
+            transform: scale(1.1);
+            background: #ff9900;
+        }
+
+        footer {
+            background-color: #2d3748;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer-links {
+            margin-top: 10px;
+        }
+
+        .footer-links a {
+            color: #ffcc33;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #ff9900;
+        }
+
+        .footer-social {
+            margin-top: 15px;
+        }
+
+        .footer-social a {
+            color: white;
+            margin: 0 5px;
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover {
+            color: #ffcc33;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 25px;
+            background-color: #2d3748;
+            color: white;
+            border: 1px solid #4a5568;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus {
+            border-color: #eab308;
+            outline: none;
+        }
+
+        .search-bar i {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #eab308;
+        }
+
+        .search-bar i:hover {
+            color: #ff9900;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .loading-spinner div {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eab308;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fixed-header p-4 rounded-b-lg flex justify-between items-center shadow-lg header-shadow header-content">
+        <h1 class="text-3xl font-bold header-title">AriesOliver Project</h1>
+        <div class="flex items-center space-x-4">
+            <div id="time" class="tooltip">
+                <span class="tooltiptext">Current Time</span>
+            </div>
+            <div id="ping" class="tooltip">
+                <span class="tooltiptext">Ping</span>
+            </div>
+        </div>
+    </div>
+    <div class="container mx-auto p-4 header-spacing">
+        <div>
+            <h2 class="text-2xl font-bold mb-2"><i class="fas fa-project-diagram mr-2 animated-icon"></i>Projects</h2>
+            <p class="text-gray-300 mb-6">Explore our diverse range of tools designed to enhance your Facebook experience, automate tasks, and improve your overall productivity.</p>
+            <div class="flex flex-wrap space-x-2 mb-6 justify-center">
+                <div class="search-bar mb-2">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search projects..." class="bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none" x-model="searchQuery" @input="loading = true; setTimeout(() => loading = false, 500);">
+                </div>
+                <button onclick="filterProjects('all')" class="bg-yellow-500 text-black px-4 py-2 rounded-lg shadow-md mb-2 focus:outline-none"><i class="fas fa-th mr-2"></i>All</button>
+                <button onclick="filterProjects('Facebook Tool')" class="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md mb-2 focus:outline-none"><i class="fab fa-facebook-f mr-2"></i>Facebook Tool</button>
+            </div>
+            <div x-show="loading" class="loading-spinner">
+                <div></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="card p-4 rounded-lg project-card shadow-lg fade-in" data-category="Facebook Tool" x-show="searchQuery === '' || 'Profile Guard On And Off'.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <img src="https://files.catbox.moe/8hmgax.jpg" alt="Profile Guard On And Off" class="w-full h-40 object-cover mb-2 rounded-md">
+                    <div class="status">
+                        <span class="dot"></span>
+                        Up
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Profile Guard On And Off</h3>
+                    <p class="text-gray-400 mb-2">Facebook Tool</p>
+                    <p class="text-gray-300 mb-4">A web application to check Facebook tokens and manage profile guard settings. Secure your Facebook profile with ease.</p>
+                    <a href="https://myprofileguard.vercel.app/" target="_blank" class="bubble-button focus:outline-none"><i class="fas fa-external-link-alt mr-2"></i>Check it now!</a>
+                </div>
+                <div class="card p-4 rounded-lg project-card shadow-lg fade-in" data-category="Facebook Tool" x-show="searchQuery === '' || 'Autoshare Token Method'.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <img src="autoshare.png" alt="Autoshare Token Method" class="w-full h-40 object-cover mb-2 rounded-md">
+                    <div class="status">
+                        <span class="dot"></span>
+                        Up
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Autoshare Token Method</h3>
+                    <p class="text-gray-400 mb-2">Facebook Tool</p>
+                    <p class="text-gray-300 mb-4">Automatically share posts using token-based authentication method for seamless integration.</p>
+                    <a href="https://www.example.com/autoshare" target="_blank" class="bubble-button focus:outline-none"><i class="fas fa-external-link-alt mr-2"></i>Check it now!</a>
+                </div>
+                <div class="card p-4 rounded-lg project-card shadow-lg fade-in" data-category="Facebook Tool" x-show="searchQuery === '' || 'Token Getter EAAD6V7'.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <img src="https://files.catbox.moe/2qtjdg.jpg" alt="Token Getter EAAAA" class="w-full h-40 object-cover mb-2 rounded-md">
+                    <div class="status">
+                        <span class="dot"></span>
+                        Up
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Token Getter EAAAA</h3>
+                    <p class="text-gray-400 mb-2">Facebook Tool</p>
+                    <p class="text-gray-300 mb-4">Retrieve Facebook tokens easily for various automation and integration purposes.</p>
+                    <a href="https://tokengettereaad6v7-by-polongdev.vercel.app/" target="_blank" class="bubble-button focus:outline-none"><i class="fas fa-external-link-alt mr-2"></i>Check it now!</a>
+                </div>
+                <div class="card p-4 rounded-lg project-card shadow-lg fade-in" data-category="Facebook Tool" x-show="searchQuery === '' || 'Appstate Getter'.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <img src="appstate_getter.png" alt="Appstate Getter" class="w-full h-40 object-cover mb-2 rounded-md">
+                    <div class="status">
+                        <span class="down"></span>
+                        Down
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Appstate Getter</h3>
+                    <p class="text-gray-400 mb-2">Facebook Tool</p>
+                    <p class="text-gray-300 mb-4">Fetch the application state for debugging and development purposes in Facebook apps.</p>
+                    <a href="https://www.example.com/appstate-getter" target="_blank" class="bubble-button focus:outline-none"><i class="fas fa-external-link-alt mr-2"></i>Check it now!</a>
+                </div>
+                <div class="card p-4 rounded-lg project-card shadow-lg fade-in" data-category="Facebook Tool" x-show="searchQuery === '' || 'Facebook Boost React'.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <img src="https://imgur.com/a/5FKUpa4.png" alt="Facebook Boost React" class="w-full h-40 object-cover mb-2 rounded-md">
+                    <div class="status">
+                        <span class="down"></span>
+                        Down
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Facebook Boost React</h3>
+                    <p class="text-gray-400 mb-2">Facebook Tool</p>
+                    <p class="text-gray-300 mb-4">Boost your Facebook posts reactions automatically to increase engagement and visibility.</p>
+                    <a href="https://facebookboostreact-by-polongdev.vercel.app" target="_blank" class="bubble-button focus:outline-none"><i class="fas fa-external-link-alt mr-2"></i>Check it now!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="backToTop" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <footer>
+        <p>&copy; 2024 AriesOliver Project. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <div class="footer-social">
+            <a href="https://www.facebook.com/Ariesoliver77"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        function filterProjects(category) {
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function filterSearch() {
+        }
+
+        function measurePing() {
+            var xhr = new XMLHttpRequest();
+            var startTime, endTime;
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    endTime = Date.now();
+                    var pingTime = endTime - startTime;
+                    document.getElementById("ping").textContent = pingTime + " ms";
+                }
+            };
+            xhr.open("GET", location.href + "?t=" + new Date().getTime());
+            startTime = Date.now();
+            xhr.send();
+        }
+        setInterval(measurePing, 1000);
+
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Manila',
+                hour12: true,
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            };
+            const formattedTime = now.toLocaleString('en-US', options);
+            document.getElementById('time').textContent = formattedTime;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById("backToTop");
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
